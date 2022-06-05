@@ -10,22 +10,51 @@
 <body>
     <script src="main.js">
     </script>
-    <h2>Aplicación para dividir gastos</h2>
+  
+    <div class="neon-wrapped">
+        <div class="neon-text">Cuentas claras App</div>
+    </div>
+       
+    <div class="conteiner-general">
+        <div class="flex-conteiner">
+            <h2>Ingresar nombre</h2>
+        </div>
 
-    <div class="flex-conteiner">
-            <h2>Ingresar nombre y gasto</h2>
-    </div>
-    <div class="flex-conteiner">
-        <input type="text" id="nombre" placeholder="Nombre">
-        <input type="number" id="monto">
-        <button id="btn-add" onclick="AgregarNuevo(nombre.value, monto.value)"> Agregar</button>
-    </div>
-    <div class="flex-conteiner" id="datos">
-    </div>
-    <div class="flex-conteiner" id="total">
-    </div>
-    <div class="flex-conteiner" id="borrar">
-        <button onclick="BorrarUno()"> Borrar BorrarUno</button>
+        <div class="nombre-conteiner">
+            <input type="text" id="nombre" placeholder="Nombre">
+        </div>
+
+        <div class="flex-conteiner">
+            <h3>Ingresar monto</h3>
+        </div>
+
+        <div class="monto-conteiner">
+            <input type="number" id="monto" placeholder="Monto">
+        </div>
+
+        <div class="botones-conteiner">
+            <button class="btn-neon" onclick="AgregarNuevo(nombre.value, monto.value)">
+            <span id="span1"></span>
+            <span id="span2"></span>
+            <span id="span3"></span>
+            <span id="span4"></span>
+            Agregar
+            </button>
+
+            <button class="btn-neon" onclick="BorrarUno()">
+            <span id="span1"></span>
+            <span id="span2"></span>
+            <span id="span3"></span>
+            <span id="span4"></span>
+            Borrar uno
+            </button>
+        </div>
+
+        <div class="datos-conteiner" id="datos">
+        </div>
+
+        <div class="total-conteiner" id="total">
+        </div>
     </div>
 </body>
 <html>

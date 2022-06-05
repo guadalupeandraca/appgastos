@@ -16,15 +16,15 @@ function Calcular(){
         <p>Cada uno debe pagar: ${apagar}</p>
         </div> 
     `;
-
 }
 
 function AgregarNuevo(nombre,monto){
     nombres.push(nombre);
-    montos.push(monto);
+    montos.push(monto); 
     Imprimir();
     Calcular();
 }
+
 
 function BorrarUno(){
     let name= prompt("Ingrese nombre a borrar");
