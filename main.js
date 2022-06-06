@@ -21,10 +21,12 @@ function Calcular(){
 function AgregarNuevo(nombre,monto){
     nombres.push(nombre);
     montos.push(monto); 
+    if(monto==0){
+        alert('Debe ingresar el monto gastado'); 
+    }
     Imprimir();
     Calcular();
 }
-
 
 function BorrarUno(){
     let name= prompt("Ingrese nombre a borrar");
