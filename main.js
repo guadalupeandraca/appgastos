@@ -19,13 +19,15 @@ function Calcular(){
 }
 
 function AgregarNuevo(nombre,monto){
-    nombres.push(nombre);
-    montos.push(monto); 
-    if(monto==0){
-        alert('Debe ingresar el monto gastado'); 
+    if(monto=="" || nombre=="" ){
+        alert('Algún campo está incompleto. Debe completar nombre y monto gastado'); 
     }
-    Imprimir();
-    Calcular();
+    else{
+        nombres.push(nombre);
+        montos.push(monto); 
+        Calcular();
+        Imprimir();
+    }
 }
 
 function BorrarUno(){
