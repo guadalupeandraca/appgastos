@@ -114,10 +114,8 @@ function setupSpeech() {
 
   recognition.onend = () => {
     stopRecording();
-    const text = document.getElementById('msg-input').value.trim();
-    if (text) {
-      setTimeout(() => sendMessage(text), 300);
-    }
+    document.getElementById('mic-status').textContent = 'Listo! Revisá el texto y tocá Enviar.';
+    setTimeout(() => { document.getElementById('mic-status').textContent = ''; }, 3000);
   };
 }
 
@@ -193,7 +191,7 @@ CATEGORÍAS PARA EL CAMPO "movimiento" (siempre en MAYÚSCULAS):
 - GASTO GENERAL: cualquier otra cosa que no encaje arriba
 
 CAMPO "descrip": Lo que se compró, en MAYÚSCULAS. Ejemplos: "VERDURAS", "NAFTA", "PAN", "EXPENSAS", "PIZZA"
-CAMPO "metPago": Usá EXACTAMENTE uno de estos tres valores: MERCADO PAGO, TARJETA CREDITO, EFECTIVO (en MAYÚSCULAS). Si no se menciona, usá EFECTIVO.
+CAMPO "metPago": Usá EXACTAMENTE uno de estos tres valores (respetando mayúsculas y espacios): MERCADO PAGO (cuando digan mercado pago o mp), TARJETA DE CREDITO (cuando digan tarjeta o crédito), EFECTIVO (cuando digan efectivo o no mencionen método).
 CAMPO "mes": Solo el nombre del mes en MAYÚSCULAS sin año. Ej: "MAYO", "JUNIO"
 
 Ejemplo de entrada: "compré verduras pagué con mercado pago en total fue 10000 pagó G cuota 1"
@@ -212,7 +210,7 @@ Reglas numéricas:
 - Hoy es ${fechaHoy}, mes actual: ${mesHoy}
 - Los montos pueden venir en palabras (ej: "diez mil" = 10000, "cinco mil" = 5000)
 - Si no se menciona quién pagó, usá "${config.pagoDefault}"
-- Si no se menciona método de pago, usá "EFECTIVO". Los 3 métodos válidos son: MERCADO PAGO, TARJETA CREDITO, EFECTIVO
+- Si no se menciona método de pago, usá "EFECTIVO". Los 3 métodos válidos son: MERCADO PAGO, TARJETA DE CREDITO, EFECTIVO
 - montoAPagar = montoTot (el total completo, NO dividir por cuotas)
 - montoProrr = montoTot / 2 (siempre la mitad del total)
 - debeG: si pagó M o JLA → montoProrr, si pagó G → "" (vacío)
