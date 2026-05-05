@@ -1,60 +1,296 @@
-<!DOCTYPE <html>
-</html lang="en">
+<!DOCTYPE html>
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title> App de Gastos</title>
-    <link rel="stylesheet" href="style.css"
-</head> 
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Bot de Gastos</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #f0f4f8; display: flex; justify-content: center; padding: 12px; }
+  #app { width: 100%; max-width: 500px; }
+  h1 { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #333; text-align: center; }
+  #setup-panel { background: #fff; border: 1px solid #ddd; border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; }
+  #setup-panel h3 { font-size: 13px; font-weight: 600; color: #555; margin-bottom: 8px; }
+  label { font-size: 13px; color: #666; display: block; margin-bottom: 4px; margin-top: 10px; }
+  input, select { width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid #ccc; border-radius: 10px; outline: none; }
+  input:focus, select:focus { border-color: #4285f4; }
+  #btn-save { width: 100%; margin-top: 12px; padding: 11px; background: #4285f4; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  #btn-save:hover { background: #3367d6; }
+  .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 6px; margin-left: 6px; }
+  .badge.ok { background: #e6f4ea; color: #1e7e34; }
+  .badge.no { background: #fff3cd; color: #856404; }
+  #chat-wrap { background: #fff; border-radius: 14px; border: 1px solid #ddd; overflow: hidden; margin-bottom: 10px; }
+  #chat-area { display: flex; flex-direction: column; gap: 10px; padding: 14px; min-height: 300px; max-height: 55vh; overflow-y: auto; }
+  .msg { max-width: 88%; padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.6; }
+  .msg.user { align-self: flex-end; background: #4285f4; color: #fff; border-bottom-right-radius: 4px; }
+  .msg.bot { align-self: flex-start; background: #f1f3f4; color: #333; border-bottom-left-radius: 4px; }
+  .msg.bot.typing { color: #aaa; font-style: italic; }
+  #input-area { padding: 10px 12px; border-top: 1px solid #eee; display: flex; gap: 8px; align-items: center; }
+  #msg-input { flex: 1; padding: 10px 12px; font-size: 14px; border: 1px solid #ccc; border-radius: 10px; outline: none; }
+  #msg-input:disabled { opacity: 0.5; }
+  #btn-send { padding: 10px 16px; background: #4285f4; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  #btn-send:disabled { opacity: 0.5; }
+  #btn-mic { width: 46px; height: 46px; border-radius: 50%; border: none; background: #e8f0fe; color: #4285f4; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; }
+  #btn-mic.recording { background: #ea4335; color: #fff; animation: pulse 1s infinite; }
+  #btn-mic:disabled { opacity: 0.4; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
+  #mic-status { text-align: center; font-size: 12px; color: #888; padding: 4px 0 8px; min-height: 20px; }
+</style>
+</head>
 <body>
-    <script src="main.js">
-    </script>
-  
-    <div class="neon-wrapped">
-        <div class="neon-text">Cuentas claras App</div>
+<div id="app">
+  <h1>💰 Bot de Gastos</h1>
+
+  <div id="setup-panel">
+    <h3>Configuración <span id="badge-cfg" class="badge no">pendiente</span></h3>
+    <label>Groq API Key</label>
+    <input type="password" id="groq-key" placeholder="gsk_..." autocomplete="off" />
+    <label>¿Quién paga por defecto?</label>
+    <select id="pago-default">
+      <option value="G">G</option>
+      <option value="M">M</option>
+      <option value="JLA">JLA</option>
+    </select>
+    <button id="btn-save">Guardar configuración</button>
+  </div>
+
+  <div id="chat-wrap">
+    <div id="chat-area">
+      <div class="msg bot">Hola! Tocá el 🎤 y contame un gasto, por ejemplo:<br><br>
+      • "Gasté cinco mil en supermercado con débito"<br>
+      • "Doce mil de nafta en tres cuotas pagó G"<br>
+      • "Tres mil quinientos de farmacia en efectivo pagó M"</div>
     </div>
-       
-    <div class="conteiner-general">
-        <div class="flex-conteiner">
-            <h2>Ingresar nombre</h2>
-        </div>
-
-        <div class="nombre-conteiner">
-            <input type="text" id="nombre" placeholder="Nombre">
-        </div>
-
-        <div class="flex-conteiner">
-            <h3>Ingresar monto</h3>
-        </div>
-
-        <div class="monto-conteiner">
-            <input type="number" id="monto" placeholder="Monto">
-        </div>
-
-        <div class="botones-conteiner">
-            <button class="btn-neon" onclick="AgregarNuevo(nombre.value, monto.value)">
-            <span id="span1"></span>
-            <span id="span2"></span>
-            <span id="span3"></span>
-            <span id="span4"></span>
-            Agregar
-            </button>
-
-            <button class="btn-neon" onclick="BorrarUno()">
-            <span id="span1"></span>
-            <span id="span2"></span>
-            <span id="span3"></span>
-            <span id="span4"></span>
-            Borrar uno
-            </button>
-        </div>
-
-        <div class="datos-conteiner" id="datos">
-        </div>
-
-        <div class="total-conteiner" id="total">
-        </div>
+    <div id="mic-status"></div>
+    <div id="input-area">
+      <button id="btn-mic" disabled title="Hablar">🎤</button>
+      <input type="text" id="msg-input" placeholder="O escribí acá..." disabled />
+      <button id="btn-send" disabled>Enviar</button>
     </div>
+  </div>
+</div>
+
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxDlEdHsHIRUCtU9XvrFIkGhZHP3LiWop3f0tNhjT-v1usWOkEfrC1um1xWeJRpqq6r/exec';
+let config = {};
+let recognition = null;
+let isRecording = false;
+
+// Setup speech recognition
+function setupSpeech() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    document.getElementById('mic-status').textContent = 'Tu navegador no soporta voz. Usá Chrome.';
+    document.getElementById('btn-mic').disabled = true;
+    return;
+  }
+  recognition = new SpeechRecognition();
+  recognition.lang = 'es-AR';
+  recognition.continuous = false;
+  recognition.interimResults = true;
+
+  recognition.onstart = () => {
+    isRecording = true;
+    document.getElementById('btn-mic').classList.add('recording');
+    document.getElementById('btn-mic').textContent = '⏹';
+    document.getElementById('mic-status').textContent = 'Escuchando... hablá ahora';
+  };
+
+  recognition.onresult = (e) => {
+    let transcript = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      transcript += e.results[i][0].transcript;
+    }
+    document.getElementById('msg-input').value = transcript;
+    if (e.results[e.results.length - 1].isFinal) {
+      document.getElementById('mic-status').textContent = '';
+    }
+  };
+
+  recognition.onerror = (e) => {
+    document.getElementById('mic-status').textContent = 'Error: ' + e.error + '. Intentá de nuevo.';
+    stopRecording();
+  };
+
+  recognition.onend = () => {
+    stopRecording();
+    const text = document.getElementById('msg-input').value.trim();
+    if (text) {
+      setTimeout(() => sendMessage(text), 300);
+    }
+  };
+}
+
+function stopRecording() {
+  isRecording = false;
+  document.getElementById('btn-mic').classList.remove('recording');
+  document.getElementById('btn-mic').textContent = '🎤';
+  document.getElementById('mic-status').textContent = '';
+}
+
+document.getElementById('btn-mic').addEventListener('click', () => {
+  if (!recognition) return;
+  if (isRecording) {
+    recognition.stop();
+  } else {
+    document.getElementById('msg-input').value = '';
+    recognition.start();
+  }
+});
+
+document.getElementById('btn-save').addEventListener('click', () => {
+  config.groqKey = document.getElementById('groq-key').value.trim();
+  config.pagoDefault = document.getElementById('pago-default').value;
+  if (!config.groqKey) { alert('Completá la Groq API Key.'); return; }
+  document.getElementById('badge-cfg').textContent = 'listo';
+  document.getElementById('badge-cfg').className = 'badge ok';
+  document.getElementById('msg-input').disabled = false;
+  document.getElementById('btn-send').disabled = false;
+  document.getElementById('btn-mic').disabled = false;
+  setupSpeech();
+  addMsg('bot', '✅ Listo! Tocá el 🎤 y contame un gasto.');
+});
+
+function addMsg(role, text) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = text.replace(/\n/g, '<br>');
+  const area = document.getElementById('chat-area');
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+  return div;
+}
+
+async function appendToSheet(fila) {
+  await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(fila)
+  });
+}
+
+async function processMessage(userText) {
+  const typingDiv = addMsg('bot typing', 'pensando...');
+  const hoy = new Date();
+  const fechaHoy = hoy.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const mesHoy = hoy.toLocaleDateString("es-AR", { month: "long" }).toUpperCase();
+
+  const systemPrompt = `Sos un asistente que extrae datos de gastos personales dictados por voz en español rioplatense.
+
+REGLA MÁS IMPORTANTE: Todos los valores de texto en el JSON deben estar en MAYÚSCULAS sin excepción. Esto incluye descrip, movimiento, metPago, pago y mes.
+
+CATEGORÍAS PARA EL CAMPO "movimiento" (siempre en MAYÚSCULAS):
+- SUPERMERCADO: verduras, frutas, kiosco, almacén, carnicería, panadería, fiambrería, feria, mercado, supermercado, despensa, verdulería, pan, farmacia, medicamentos, remedios, pastillas, droguería
+- CASA: luz, agua, expensas, gas, internet, teléfono, EPEC, Telecom, alquiler, seguro del hogar
+- COMBUSTIBLE: nafta, gasoil, combustible, YPF, Shell, Axion, estación de servicio
+- RESTAURANTE: restaurant, comida, almuerzo, cena, delivery, pizza, empanadas, hamburguesa, café, bar, sushi
+- TRANSPORTE: uber, taxi, remis, colectivo, tren, subte, peaje, estacionamiento
+- ROPA: ropa, zapatillas, calzado, indumentaria, jean, remera, campera, vestido
+- SALUD: médico, dentista, hospital, clínica, consulta, odontólogo, kinesiología
+- ENTRETENIMIENTO: cine, teatro, Netflix, Spotify, juego, streaming, Disney
+- HOGAR: ferretería, muebles, limpieza, electrodoméstico, pintura, herramienta
+- GASTO GENERAL: cualquier otra cosa que no encaje arriba
+
+CAMPO "descrip": Lo que se compró, en MAYÚSCULAS. Ejemplos: "VERDURAS", "NAFTA", "PAN", "EXPENSAS", "PIZZA"
+CAMPO "metPago": Usá EXACTAMENTE uno de estos tres valores: MERCADO PAGO, TARJETA CREDITO, EFECTIVO (en MAYÚSCULAS). Si no se menciona, usá EFECTIVO.
+CAMPO "mes": Solo el nombre del mes en MAYÚSCULAS sin año. Ej: "MAYO", "JUNIO"
+
+Ejemplo de entrada: "compré verduras pagué con mercado pago en total fue 10000 pagó G cuota 1"
+Ejemplo de salida: {"action":"registrar","fecha":"${fechaHoy}","movimiento":"SUPERMERCADO","descrip":"VERDURAS","metPago":"MERCADO PAGO","pago":"G","montoTot":10000,"cantCuotas":1,"cuotaN":1,"montoAPagar":10000,"montoProrr":5000,"debeG":"","debeM":5000,"mes":"${mesHoy}"}
+
+Ejemplo 2 entrada: "luz 5000 pagó M"
+Ejemplo 2 salida: {"action":"registrar","fecha":"${fechaHoy}","movimiento":"CASA","descrip":"LUZ","metPago":"EFECTIVO","pago":"M","montoTot":5000,"cantCuotas":1,"cuotaN":1,"montoAPagar":5000,"montoProrr":2500,"debeG":2500,"debeM":"","mes":"${mesHoy}"}
+
+Ejemplo 3 entrada: "nafta 8000 pagó JLA"
+Ejemplo 3 salida: {"action":"registrar","fecha":"${fechaHoy}","movimiento":"COMBUSTIBLE","descrip":"NAFTA","metPago":"EFECTIVO","pago":"JLA","montoTot":8000,"cantCuotas":1,"cuotaN":1,"montoAPagar":8000,"montoProrr":4000,"debeG":4000,"debeM":4000,"mes":"${mesHoy}"}
+
+Cuando detectes un gasto, respondé SOLO con este JSON sin backticks ni markdown:
+{"action":"registrar","fecha":"DD/MM/YYYY","movimiento":"...","descrip":"...","metPago":"...","pago":"G","montoTot":0,"cantCuotas":1,"cuotaN":1,"montoAPagar":0,"montoProrr":0,"debeG":0,"debeM":0,"mes":"..."}
+
+Reglas numéricas:
+- Hoy es ${fechaHoy}, mes actual: ${mesHoy}
+- Los montos pueden venir en palabras (ej: "diez mil" = 10000, "cinco mil" = 5000)
+- Si no se menciona quién pagó, usá "${config.pagoDefault}"
+- Si no se menciona método de pago, usá "EFECTIVO". Los 3 métodos válidos son: MERCADO PAGO, TARJETA CREDITO, EFECTIVO
+- montoAPagar = montoTot (el total completo, NO dividir por cuotas)
+- montoProrr = montoTot / 2 (siempre la mitad del total)
+- debeG: si pagó M o JLA → montoProrr, si pagó G → "" (vacío)
+- debeM: si pagó G o JLA → montoProrr, si pagó M → "" (vacío)
+- Los pagadores válidos son: G, M, JLA
+- Si NO es un gasto, respondé normalmente sin JSON`;
+
+  let replyText = '';
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + config.groqKey },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        temperature: 0.1,
+        max_tokens: 500,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userText }
+        ]
+      })
+    });
+    typingDiv.remove();
+    if (!res.ok) {
+      const err = await res.json();
+      addMsg('bot', 'Error con Groq: ' + (err.error?.message || 'desconocido'));
+      return;
+    }
+    const data = await res.json();
+    replyText = data.choices?.[0]?.message?.content || '';
+  } catch(e) {
+    typingDiv.remove();
+    addMsg('bot', 'Error: ' + e.message);
+    return;
+  }
+
+  let parsed = null;
+  try {
+    const jsonMatch = replyText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) parsed = JSON.parse(jsonMatch[0]);
+  } catch(e) {}
+
+  if (parsed && parsed.action === 'registrar') {
+    const savingDiv = addMsg('bot typing', 'Anotando en la planilla...');
+    try {
+      await appendToSheet(parsed);
+      savingDiv.remove();
+      const cuotaInfo = parsed.cantCuotas > 1 ? '\n🔢 Cuota ' + parsed.cuotaN + ' de ' + parsed.cantCuotas : '';
+      addMsg('bot',
+        '✅ Anotado!\n\n' +
+        '📅 ' + parsed.fecha + ' — ' + parsed.mes + '\n' +
+        '📝 ' + parsed.descrip + '\n' +
+        '💳 ' + parsed.metPago + ' — Pagó: ' + parsed.pago + '\n' +
+        '💰 $' + parsed.montoTot + cuotaInfo + '\n' +
+        '👤 Debe G: $' + parsed.debeG + ' | Debe M: $' + parsed.debeM
+      );
+    } catch(e) {
+      savingDiv.remove();
+      addMsg('bot', '⚠️ No pude escribir en la planilla: ' + e.message);
+    }
+  } else {
+    addMsg('bot', replyText || 'No entendí. Intentá de nuevo.');
+  }
+}
+
+function sendMessage(text) {
+  if (!text) return;
+  addMsg('user', text);
+  document.getElementById('msg-input').value = '';
+  processMessage(text);
+}
+
+document.getElementById('btn-send').addEventListener('click', () => {
+  sendMessage(document.getElementById('msg-input').value.trim());
+});
+document.getElementById('msg-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendMessage(document.getElementById('msg-input').value.trim());
+});
+</script>
 </body>
-<html>
+</html>
